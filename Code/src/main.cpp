@@ -1,33 +1,71 @@
 #include <SFML/Graphics.hpp>
-
+#include <optional>
+#include <vector>
+#include "lane.h"
+using namespace std;
+using namespace sf;
+    
 int main() {
-    sf::RenderWindow window(sf::VideoMode({800u, 600u}), "Crossy Road");
+    const float TILE = 50.f;
+    const float width = 550.f;
+    const float height = 750.f;
+    const float PLAYER_SIZE = 50.f;
 
-    sf::RectangleShape player({50.f, 50.f});
-    player.setFillColor(sf::Color::Blue);
-    player.setPosition({375.f, 500.f});
+    RenderWindow window(VideoMode({(unsigned int)width,(unsigned int)height}), "Crossy Road");
 
-    float speed = 200.f;
-    sf::Clock clock;
 
+    vector<Lane> lanes;
+    vector<Lane::Type> pattern = {
+        Lane::SAFE,
+        Lane::ROAD, Lane::ROAD,
+        Lane::SAFE,
+        Lane::RIVER, Lane::RIVER,
+        Lane::SAFE,
+        Lane::ROAD, Lane::ROAD,
+        Lane::SAFE,
+        Lane::ROAD,
+        Lane::SAFE
+    };
+    for (int i = 0; i < (int)pattern.size(); i++)
+        lanes.push_back(Lane(0.f, height - (i + 1) * TILE, width, TILE, pattern[i]));
+
+    RectangleShape player({PLAYER_SIZE, PLAYER_SIZE});
+    player.setFillColor(Color::Blue);
+    player.setPosition({(width / 2) - (PLAYER_SIZE / 2), height - TILE});
+    
     while (window.isOpen()) {
-        float dt = clock.restart().asSeconds();
 
         while (const std::optional event = window.pollEvent()) {
-            if (event->is<sf::Event::Closed>())
+            if (event->is<Event::Closed>())
                 window.close();
-        }
 
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Left))
-            player.move({-speed * dt, 0.f});
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Right))
-            player.move({speed * dt, 0.f});
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Up))
-            player.move({0.f, -speed * dt});
-        if (sf::Keyboard::isKeyPressed(sf::Keyboard::Key::Down))
-            player.move({0.f, speed * dt});
+        if (const auto* keyEvent = event->getIf<Event::KeyPressed>()) {
+               Vector2f pos = player.getPosition();
+                switch (keyEvent->code) {
+                    case Keyboard::Key::Up:
+                        if (pos.y - TILE >= 0)
+                            player.move({0.f, -TILE});
+                        break;
+                    case Keyboard::Key::Down:
+                        if (pos.y + TILE + PLAYER_SIZE <= height)
+                            player.move({0.f, TILE});
+                        break;
+                    case Keyboard::Key::Left:
+                        if (pos.x - TILE >= 0)
+                            player.move({-TILE, 0.f});
+                        break;
+                    case Keyboard::Key::Right:
+                        if (pos.x + TILE + PLAYER_SIZE <= width)
+                            player.move({TILE, 0.f});
+                        break;
+                    default: break;
+                }
+            }
+        }      
+        window.clear(Color(100, 200, 100));
+        for (auto& lane : lanes)
+            lane.draw(window);
 
-        window.clear(sf::Color(100, 200, 100));
         window.draw(player);
         window.display();
     }
