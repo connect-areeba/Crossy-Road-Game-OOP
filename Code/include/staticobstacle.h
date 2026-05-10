@@ -1,23 +1,22 @@
 #pragma once
-#include <SFML/Graphics.hpp>
-using namespace sf;
+#include "obstacle.h"
 
-class Obstacle {
+class Tree : public Obstacle {
 public:
-    Obstacle(float x, float y, float w, float h, Color color, float speed, int dir=1);
+    Tree(float x, float y);
+    void update(float dt) override;
+    void draw(RenderWindow& window) override;
+    Obstacle* clone() const override { 
+        return new Tree(*this); 
+    }
+};
 
-    virtual void update(float dt) = 0;       // pure virtual
-    virtual void draw(RenderWindow& window) = 0; // pure virtual
-    virtual Obstacle* clone() const = 0; 
-
-    void setPosition(float x, float y);
-    FloatRect getBounds();
-    bool isOffScreen();
-    float getSpeedX();
-    void setSpeed(float s) { speed = s; }
-
-protected:
-    RectangleShape shape;
-    float speed;
-    int direction; // +1 right, -1 left
+class Rock : public Obstacle {
+public:
+    Rock(float x, float y);
+    void update(float dt) override;
+    void draw(RenderWindow& window) override;
+    Obstacle* clone() const override { 
+        return new Rock(*this); 
+    }
 };
