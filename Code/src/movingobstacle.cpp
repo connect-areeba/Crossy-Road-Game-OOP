@@ -3,7 +3,7 @@
 
 sf::Vector2f Vehicle::sizeFor(VehicleType t) {
     switch (t) {
-        case VehicleType::BIKE:     return {TILE * 0.8f,  TILE * 0.5f};
+        case VehicleType::BIKE:     return {TILE * 1.5f,  TILE * 0.7f};
         case VehicleType::RICKSHAW: return {TILE * 1.5f,  TILE * 0.7f};
         case VehicleType::DUMPER:   return {TILE * 2.5f,  TILE * 0.85f};
         default:                    return {TILE, TILE};
@@ -40,7 +40,7 @@ void Vehicle::draw(RenderWindow& window) {
 }
 
 Log::Log(float x, float y, float speed, int direction, float windowWidth)
-    : Obstacle(x, y, TILE * 2.5f, TILE * 0.7f,
+    : Obstacle(x, y, TILE * 2.5f, TILE * 0.85f,
         "..\\assets\\images\\log.png", speed, direction),
       windowWidth(windowWidth) {
     objWidth = TILE * 2.5f;
