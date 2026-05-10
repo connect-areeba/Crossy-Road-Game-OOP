@@ -13,8 +13,27 @@ class WorldGenerator {
 public:
     WorldGenerator(float windowWidth, float windowHeight);
     ~WorldGenerator();  // ← needed to delete prototypes
+    void reinitialize();
 
     void update(float cameraY, std::vector<Lane>& lanes, std::vector<Obstacle*>& obstacles);
+    // worldgenerator.h — add this
+    WorldGenerator& operator=(WorldGenerator&& other) noexcept {
+        if (this != &other) {
+            // delete our current prototypes
+            for (auto& pair : prototypes)
+                delete pair.second;
+            prototypes.clear();
+
+            // take ownership from other
+            windowWidth       = other.windowWidth;
+            windowHeight      = other.windowHeight;
+            highestLaneY      = other.highestLaneY;
+            lanesSinceLastSafe = other.lanesSinceLastSafe;
+            rng               = std::move(other.rng);
+            prototypes        = std::move(other.prototypes);
+        }
+        return *this;
+    }
 
 private:
     float windowWidth;
